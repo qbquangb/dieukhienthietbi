@@ -1,6 +1,9 @@
 from tkinter import *
 from time import strftime
 import serial
+import cv2
+import PIL.Image, PIL.ImageTk
+import tkinter
 
 # Thiết lập kết nối Serial với Arduino
 ser = serial.Serial(port='COM4', baudrate=9600, timeout=0.2)
@@ -12,6 +15,11 @@ root.state('zoomed')  # Maximize cửa sổ
 # Màu nền giống Windows 10
 tk_color = '#0078D7'
 root.configure(bg=tk_color)
+
+video = cv2.VideoCapture("flag.mp4")
+canvas_w = int(video.get(cv2.CAP_PROP_FRAME_WIDTH)) // 2
+canvas_h = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT)) // 2
+canvas = Canvas(root, width=canvas_w, height=canvas_h, bg=tk_color)
 
 # Nhãn thời gian và ngày tháng góc trên trái (nền tkinter, chữ vàng)
 label = Label(
@@ -28,6 +36,9 @@ date_label = Label(
     fg='yellow'
 )
 date_label.pack(anchor='nw', padx=10, pady=(0, 10))
+
+# Đặt canvas video ngay dưới nhãn ngày tháng
+canvas.pack(anchor='nw', padx=10, pady=(0, 20))
 
 # Tiêu đề phần mềm
 title_label = Label(
@@ -167,6 +178,28 @@ def tatquat():
         ser.write(b'tatquat\r')
     root.after(1000, phanhoi)
 
+def update_frame():
+    global canvas, photo, video
+
+    ret, frame = video.read()
+
+    if not ret:
+        # Khi hết video, quay về đầu để loop
+        video.set(cv2.CAP_PROP_POS_FRAMES, 0)
+        ret, frame = video.read()
+
+    # Ressize
+    frame = cv2.resize(frame, dsize=None, fx=0.5, fy=0.51)
+    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+    # Convert thanh image TK
+    photo = PIL.ImageTk.PhotoImage(image=PIL.Image.fromarray(frame))
+
+    canvas.create_image(0,0, image = photo, anchor=tkinter.NW)
+
+    root.after(15, update_frame)
+
+root.after(0, update_frame)
 root.after(0, update_time)
 root.after(0, animate_email)
 root.mainloop()
