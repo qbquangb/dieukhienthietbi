@@ -17,8 +17,8 @@ tk_color = '#0078D7'
 root.configure(bg=tk_color)
 
 video = cv2.VideoCapture("flag.mp4")
-canvas_w = int(video.get(cv2.CAP_PROP_FRAME_WIDTH)) // 2
-canvas_h = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT)) // 2
+canvas_w = int(video.get(cv2.CAP_PROP_FRAME_WIDTH)) // 3
+canvas_h = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT)) // 3
 canvas = Canvas(root, width=canvas_w, height=canvas_h, bg=tk_color)
 
 # Nhãn thời gian và ngày tháng góc trên trái (nền tkinter, chữ vàng)
@@ -189,7 +189,7 @@ def update_frame():
         ret, frame = video.read()
 
     # Ressize
-    frame = cv2.resize(frame, dsize=None, fx=0.5, fy=0.51)
+    frame = cv2.resize(frame, dsize=None, fx=0.35, fy=0.35)
     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
     # Convert thanh image TK
